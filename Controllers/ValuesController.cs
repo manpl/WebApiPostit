@@ -21,18 +21,6 @@ namespace WebApiPostIt.Controllers
 
     public class Repository
     {
-        static Repository()
-        {
-    
-            var Items = new List<PostIt>() { 
-            new PostIt{Id = 1,CreatedOn = new DateTime(2012, 11, 11), Content= "TEST1", Subject="TEST1", User="USER", DisplayData = new { X = 0, Y = 0 }},
-            new PostIt{Id = 2,CreatedOn = new DateTime(2011, 11, 11), Content= "TEST2", Subject="TEST2", User="USER", DisplayData = new { X = 250, Y = 0 }},
-            new PostIt{Id = 3,CreatedOn = new DateTime(2014, 11, 11), Content= "TEST3", Subject="TEST3", User="USER", DisplayData = new { X = 500, Y = 0 }},
-            new PostIt{Id = 4,CreatedOn = new DateTime(2015, 11, 11), Content= "TEST4", Subject="TEST4", User="USER", DisplayData = new { X = 750, Y = 0 }},
-            };
-
-            File.WriteAllText(@"c:\temp\test.data", JsonConvert.SerializeObject(Items));
-        }
 
         public List<PostIt> GetAll()
         {
@@ -71,8 +59,6 @@ namespace WebApiPostIt.Controllers
         // PUT api/values/5
         public void Put([FromBody]PostIt value)
         {
-            value.DisplayData = new {X = 100, Y = 100};
-
             var items = repo.GetAll();
             items.Add(value);
             repo.Save(items);

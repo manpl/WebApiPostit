@@ -1,6 +1,10 @@
 ﻿<div >
     
-   <div id="addpostit">ADD</div>
+   <div id="addpostit">
+       <label>Subject</label><input id="subject" type="text" /> <br />
+       <label>Content</label><input id="content" type="text" /><br />
+       <button id="addpostitbutton">Create</button>
+   </div>
     <section id="postitPlaceholder" >
         
     </section>
@@ -28,6 +32,9 @@
             });
         };
 
+        $("#addpostit").draggable();
+
+
         var onDelete = function (id, onSuccess, onError) {
             $.ajax({
                 url: 'api/values/' + id,
@@ -50,10 +57,12 @@
 
         };
 
-        $('#addpostit').click(function (event) {
+        $('#addpostitbutton').click(function (event) {
+            var content = $('#content').val();
+            var subject = $('#subject').val();
             event.preventDefault();
-            add({ 'CreatedOn': new Date(), 'Content': 'test', 'Subject': 'subject', 'DisplayData': {'X': 200, 'Y': 200}},
-                function (e) { },
+            add({ 'Content': content, 'Subject': subject, 'CreatedOn': new Date(), 'DisplayData': { 'X': event.offsetX, 'Y': event.offsetY } },
+                function (e) { alert('ok'); },
                 function (e) { }
                 );
         });
