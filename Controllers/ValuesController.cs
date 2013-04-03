@@ -65,11 +65,17 @@ namespace WebApiPostIt.Controllers
         // POST api/values
         public void Post([FromBody]string value)
         {
+            
         }
 
         // PUT api/values/5
-        public void Put(int id, [FromBody]string value)
+        public void Put([FromBody]PostIt value)
         {
+            value.DisplayData = new {X = 100, Y = 100};
+
+            var items = repo.GetAll();
+            items.Add(value);
+            repo.Save(items);
         }
 
         // DELETE api/values/5

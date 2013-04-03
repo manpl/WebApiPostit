@@ -1,5 +1,6 @@
 ﻿<div >
-   
+    
+   <div id="addpostit">ADD</div>
     <section id="postitPlaceholder" >
         
     </section>
@@ -35,7 +36,27 @@
                 success: onSuccess,
                 error: onError
             });
-        }
+        };
+
+        var add = function (data, onSuccess, onError) {
+            $.ajax({
+                url: 'api/values/',
+                type: 'PUT',
+                data: JSON.stringify(data),
+                contentType: "application/json;charset=utf-8",
+                success: onSuccess,
+                error: onError
+            });
+
+        };
+
+        $('#addpostit').click(function (event) {
+            event.preventDefault();
+            add({ 'CreatedOn': new Date(), 'Content': 'test', 'Subject': 'subject', 'DisplayData': {'X': 200, 'Y': 200}},
+                function (e) { },
+                function (e) { }
+                );
+        });
 
 
         $.getJSON("api/values", function (data) {
