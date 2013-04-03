@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -13,27 +15,51 @@ namespace WebApiPostIt.Controllers
         public string User { get; set; }
         public string Content { get; set; }
         public string Subject { get; set; }
+        public int Id { get; set; }
+        public object DisplayData { get; set; }
+    }
+
+    public class Repository
+    {
+        static Repository()
+        {
+    
+            var Items = new List<PostIt>() { 
+            new PostIt{Id = 1,CreatedOn = new DateTime(2012, 11, 11), Content= "TEST1", Subject="TEST1", User="USER", DisplayData = new { X = 0, Y = 0 }},
+            new PostIt{Id = 2,CreatedOn = new DateTime(2011, 11, 11), Content= "TEST2", Subject="TEST2", User="USER", DisplayData = new { X = 250, Y = 0 }},
+            new PostIt{Id = 3,CreatedOn = new DateTime(2014, 11, 11), Content= "TEST3", Subject="TEST3", User="USER", DisplayData = new { X = 500, Y = 0 }},
+            new PostIt{Id = 4,CreatedOn = new DateTime(2015, 11, 11), Content= "TEST4", Subject="TEST4", User="USER", DisplayData = new { X = 750, Y = 0 }},
+            };
+
+            File.WriteAllText(@"c:\temp\test.data", JsonConvert.SerializeObject(Items));
+        }
+
+        public List<PostIt> GetAll()
+        {
+            var content = File.ReadAllText(@"c:\temp\test.data");
+                
+            return JsonConvert.DeserializeObject<List<PostIt>>(content);
+        }
+
+        public void Save(List<PostIt> items)
+        {
+             File.WriteAllText(@"c:\temp\test.data", JsonConvert.SerializeObject(items));
+        }
     }
 
     public class ValuesController : ApiController
     {
-        List<PostIt> postits = new List<PostIt>() { 
-            new PostIt{CreatedOn = new DateTime(2012, 11, 11), Content= "TEST1", Subject="TEST1", User="USER"},
-            new PostIt{CreatedOn = new DateTime(2011, 11, 11), Content= "TEST2", Subject="TEST2", User="USER"},
-            new PostIt{CreatedOn = new DateTime(2014, 11, 11), Content= "TEST3", Subject="TEST3", User="USER"},
-            new PostIt{CreatedOn = new DateTime(2015, 11, 11), Content= "TEST4", Subject="TEST4", User="USER"},
-        };
-
+        Repository repo = new Repository();
         // GET api/values
         public IEnumerable<PostIt> Get()
         {
-            return postits;
+            return repo.GetAll();
         }
 
         // GET api/values/5
-        public string Get(int id)
+        public PostIt Get(int id)
         {
-            return "value";
+            return repo.GetAll().Single(p => p.Id == id);
         }
 
         // POST api/values
@@ -49,6 +75,11 @@ namespace WebApiPostIt.Controllers
         // DELETE api/values/5
         public void Delete(int id)
         {
+            var allItems = repo.GetAll();
+
+            allItems.RemoveAll(item => item.Id == id);
+            
+            repo.Save(allItems);
         }
     }
 }
