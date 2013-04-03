@@ -1,6 +1,6 @@
-﻿<div id="body">
+﻿<div >
    
-    <section id="postitPlaceholder" class="content-wrapper main-content clear-fix">
+    <section id="postitPlaceholder" >
         
     </section>
 </div>
@@ -11,6 +11,7 @@
         By: {1} <br />
         On: {2} <br />
         {3} <br />
+        <div class="delete" data-key="{4}" />
     </div>
 </script>
 
@@ -26,12 +27,39 @@
             });
         };
 
+        var onDelete = function (id, onSuccess, onError) {
+            $.ajax({
+                url: 'api/values/' + id,
+                type: 'DELETE',
+                contentType: "application/json;charset=utf-8",
+                success: onSuccess,
+                error: onError
+            });
+        }
+
 
         $.getJSON("api/values", function (data) {
             var template = $("#postitTemplate").html()
 
             $.each(data, function (index, val) {
-                $("#postitPlaceholder").append(template.format(val.Subject, val.User, val.CreatedOn, val.Content));
+                var element = $(template.format(val.Subject, val.User, val.CreatedOn, val.Content, val.Id));
+                $("#postitPlaceholder").append(element);
+                element.offset({ top: val.DisplayData.Y, left: val.DisplayData.X });
+                var deleteElement = $('.delete', element);
+
+                deleteElement.click(function (event) {
+                    event.preventDefault();
+                    onDelete(val.Id,
+                        function (data) {
+                            element.fadeOut('quick', function() {
+                                element.remove();
+                             });
+                            
+                        },
+                        function (x, y, z) {
+
+                        });
+                });
             });
 
             $(".postit").draggable();
