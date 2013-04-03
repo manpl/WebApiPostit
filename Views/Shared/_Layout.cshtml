@@ -5,14 +5,30 @@
     <meta name="viewport" content="width=device-width" />
     <title>@ViewBag.Title</title>
     @Styles.Render("~/Content/css")
+    @Styles.Render("~/Content/themes/base/css")
     @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryui")
+
+    <style>
+        .postit {
+            background-color: yellow; 
+            min-width:100px; 
+            min-height:100px;
+            max-height: 200px;
+            max-width: 300px;
+            width: 200px;
+            padding: 10px 10px 10px 10px;
+        }
+
+    </style>
 </head>
 <body>
     <header>
         <div class="content-wrapper">
             <div class="float-left">
                 <p class="site-title">
-                    <a href="~/">ASP.NET Web API</a></p>
+                    <a href="~/">Postit Web API sample</a></p>
             </div>
             <div class="float-right">
                 <nav>
@@ -26,7 +42,7 @@
     </header>
     @RenderBody()
 
-    @Scripts.Render("~/bundles/jquery")
+   
     @RenderSection("scripts", required: false)
 </body>
 </html>
