@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Web.Http;
 
 namespace WebApiPostIt.Controllers
@@ -66,6 +67,7 @@ namespace WebApiPostIt.Controllers
         {
             var items = repo.GetAll();
             value.Id = items.Any() ? items.Max(item => item.Id) + 1 : 1 ;
+            value.User = Thread.CurrentPrincipal.Identity.Name;
             items.Add(value);
             repo.Save(items);
             return value;
