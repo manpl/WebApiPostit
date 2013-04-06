@@ -54,7 +54,7 @@ namespace WebApiPostIt.Controllers
         public void Post([FromBody]PostIt value)
         {
             var allItems = repo.GetAll();
-            var postit = allItems.FirstOrDefault(item => item.Id == value.Id);
+            var postit = allItems.Single(item => item.Id == value.Id);
             postit.Subject = value.Subject;
             postit.DisplayData = value.DisplayData;
             postit.Content = value.Content;
@@ -65,7 +65,7 @@ namespace WebApiPostIt.Controllers
         public PostIt Put([FromBody]PostIt value)
         {
             var items = repo.GetAll();
-            value.Id = items.Any() ? items.Max(item => item.Id) : 1 ;
+            value.Id = items.Any() ? items.Max(item => item.Id) + 1 : 1 ;
             items.Add(value);
             repo.Save(items);
             return value;
