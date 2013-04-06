@@ -35,7 +35,7 @@ namespace WebApiPostIt.Controllers
         }
     }
 
-    public class ValuesController : ApiController
+    public class PostItController : ApiController
     {
         Repository repo = new Repository();
         // GET api/values
@@ -51,17 +51,24 @@ namespace WebApiPostIt.Controllers
         }
 
         // POST api/values
-        public void Post([FromBody]string value)
+        public void Post([FromBody]PostIt value)
         {
-            
+            var allItems = repo.GetAll();
+            var postit = allItems.FirstOrDefault(item => item.Id == value.Id);
+            postit.Subject = value.Subject;
+            postit.DisplayData = value.DisplayData;
+            postit.Content = value.Content;
+            repo.Save(allItems);
         }
 
         // PUT api/values/5
-        public void Put([FromBody]PostIt value)
+        public PostIt Put([FromBody]PostIt value)
         {
             var items = repo.GetAll();
+            value.Id = items.Any() ? items.Max(item => item.Id) : 1 ;
             items.Add(value);
             repo.Save(items);
+            return value;
         }
 
         // DELETE api/values/5
