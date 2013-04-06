@@ -32,12 +32,24 @@
             });
         };
 
+        var route = "api/PostIt/";
+
         $("#addpostit").draggable();
 
-
-        var onDelete = function (id, onSuccess, onError) {
+        var requestSave = function (id, data, onSuccess, onError) {
             $.ajax({
-                url: 'api/values/' + id,
+                url: route + id,
+                type: 'POST',
+                data: JSON.stringify(data),
+                contentType: "application/json;charset=utf-8",
+                success: onSuccess,
+                error: onError
+            });
+        };
+
+        var requestDelete = function (id, onSuccess, onError) {
+            $.ajax({
+                url: route + id,
                 type: 'DELETE',
                 contentType: "application/json;charset=utf-8",
                 success: onSuccess,
@@ -45,9 +57,9 @@
             });
         };
 
-        var add = function (data, onSuccess, onError) {
+        var requestAdd = function (data, onSuccess, onError) {
             $.ajax({
-                url: 'api/values/',
+                url: route,
                 type: 'PUT',
                 data: JSON.stringify(data),
                 contentType: "application/json;charset=utf-8",
@@ -61,38 +73,61 @@
             var content = $('#content').val();
             var subject = $('#subject').val();
             event.preventDefault();
-            add({ 'Content': content, 'Subject': subject, 'CreatedOn': new Date(), 'DisplayData': { 'X': event.offsetX, 'Y': event.offsetY } },
-                function (e) { alert('ok'); },
+            requestAdd({ 'Content': content, 'Subject': subject, 'CreatedOn': new Date(), 'DisplayData': { 'X': event.offsetX, 'Y': event.offsetY } },
+                function (e) {
+                    var template = $("#postitTemplate").html();
+                    addPostit(template, e);
+                },
                 function (e) { }
                 );
         });
 
+        var addPostItElement = function (template, val) {
+            var element = $(template.format(val.Subject, val.User, val.CreatedOn, val.Content, val.Id));
+            $("#postitPlaceholder").append(element);
+            element.offset({ top: val.DisplayData.Y, left: val.DisplayData.X });
+            return element;
+        };
 
-        $.getJSON("api/values", function (data) {
-            var template = $("#postitTemplate").html()
+        var addPostit = function (template, val) {
+            var element = addPostItElement(template, val);
+            jQuery.data(element[0], 'data', val);
+            var deleteElement = $('.delete', element);
 
-            $.each(data, function (index, val) {
-                var element = $(template.format(val.Subject, val.User, val.CreatedOn, val.Content, val.Id));
-                $("#postitPlaceholder").append(element);
-                element.offset({ top: val.DisplayData.Y, left: val.DisplayData.X });
-                var deleteElement = $('.delete', element);
-
-                deleteElement.click(function (event) {
-                    event.preventDefault();
-                    onDelete(val.Id,
-                        function (data) {
-                            element.fadeOut('quick', function() {
-                                element.remove();
-                             });
-                            
-                        },
-                        function (x, y, z) {
-
+            deleteElement.click(function (event) {
+                event.preventDefault();
+                requestDelete(val.Id,
+                    function (data) {
+                        element.fadeOut('quick', function () {
+                            element.remove();
                         });
-                });
+
+                    },
+                    function (x, y, z) {
+
+                    });
             });
 
-            $(".postit").draggable();
+            element.draggable({
+                stop: function (event, ui) {
+
+                    var data = jQuery.data(ui.helper[0], 'data');
+
+                    var offset = ui.offset;
+                    data.DisplayData = { 'X': offset.left, 'Y': offset.top };
+                    requestSave(data.Id, data, function () { }, function () {
+                        alert("Something went wrong");
+                    });
+                }
+            });
+        };
+
+        $.getJSON(route, function (data) {
+            var template = $("#postitTemplate").html();
+           
+            $.each(data, function (index, postitData) {
+                addPostit(template, postitData);
+            });
         });
     });
 
