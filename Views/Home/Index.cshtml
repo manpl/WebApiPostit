@@ -83,7 +83,9 @@
         var addPostItElement = function (template, val) {
             var element = $(template.format(val.Subject, val.User, val.CreatedOn, val.Content, val.Id));
             $("#postitPlaceholder").append(element);
-            element.offset({ top: val.DisplayData.Y, left: val.DisplayData.X });
+            element.offset({ top: val.DisplayData.Y, left: val.DisplayData.X, });
+            if (val.DisplayData.Height !== undefined && val.DisplayData.Width !== undefined)
+                element.height(val.DisplayData.Height).width(val.DisplayData.Width);
             return element;
         };
 
@@ -114,7 +116,18 @@
                     var offset = ui.offset;
                     data.DisplayData = { 'X': offset.left, 'Y': offset.top };
                     requestSave(data.Id, data, function () { }, function () {
-                        alert("Something went wrong");
+                        alert("Something went wrong on dragging");
+                    });
+                }
+            }).resizable({
+                stop: function (event, ui) {
+
+                    var data = jQuery.data(ui.helper[0], 'data');
+                    var offset = ui.offset;
+                    data.DisplayData.Width = ui.size.width;
+                    data.DisplayData.Height = ui.size.height;
+                    requestSave(data.Id, data, function () { }, function () {
+                        alert("Something went wrong on resize");
                     });
                 }
             });
