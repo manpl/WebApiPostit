@@ -37,11 +37,11 @@
         var requestSave = function (id, data, onSuccess, onError) {
             $.ajax({
                 url: route + id,
-                type: 'POST',
+                type: 'PUT',
                 data: JSON.stringify(data),
                 contentType: "application/json;charset=utf-8",
-                success: onSuccess,
-                error: onError
+                success: function (e) { console.log('Success : ' + e); onSuccess(e); },
+                error: function (x, y, z) { console.log('Error on : ' + x + ' ' + y + ' ' + z); onError(x, y, z); }
             });
         };
 
@@ -50,19 +50,19 @@
                 url: route + id,
                 type: 'DELETE',
                 contentType: "application/json;charset=utf-8",
-                success: onSuccess,
-                error: onError
+                success: function (e) { console.log('Success : ' + e); onSuccess(e); },
+                error: function (x, y, z) { console.log('Error on : ' + x + ' ' + y + ' ' + z); onError(x, y, z); }
             });
         };
 
         var requestAdd = function (data, onSuccess, onError) {
             $.ajax({
                 url: route,
-                type: 'PUT',
+                type: 'POST',
                 data: JSON.stringify(data),
                 contentType: "application/json;charset=utf-8",
-                success: onSuccess,
-                error: onError
+                success: function (e) { console.log('Success : ' + e); onSuccess(e); },
+                error: function (x, y, z) { console.log('Error on : ' + x + ' ' + y + ' ' + z); onError(x, y, z); }
             });
 
         };
