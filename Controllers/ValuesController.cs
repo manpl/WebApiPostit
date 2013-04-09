@@ -41,25 +41,35 @@ namespace WebApiPostIt.Controllers
             return repo.GetAll().Single(p => p.Id == id);
         }
 
+
+        // add
         // POST api/values
-        public void Post([FromBody]PostIt value)
+        public HttpResponseMessage Post([FromBody]PostIt value)
+        {
+            var items = repo.GetAll();
+            value.Id = items.Any() ? items.Max(item => item.Id) + 1 : 1;
+            value.User = Thread.CurrentPrincipal.Identity.Name;
+            items.Add(value);
+            repo.Save(items);
+
+            return Request.CreateResponse<PostIt>(HttpStatusCode.Created, value);
+        }
+
+        // update
+        // PUT api/values/5
+        public PostIt Put([FromBody]PostIt value)
         {
             var allItems = repo.GetAll();
-            var postit = allItems.Single(item => item.Id == value.Id);
+            var postit = allItems.SingleOrDefault(item => item.Id == value.Id);
+
+            if(postit == null)
+                throw new HttpResponseException(HttpStatusCode.NotFound);
+
             postit.Subject = value.Subject;
             postit.DisplayData = value.DisplayData;
             postit.Content = value.Content;
             repo.Save(allItems);
-        }
 
-        // PUT api/values/5
-        public PostIt Put([FromBody]PostIt value)
-        {
-            var items = repo.GetAll();
-            value.Id = items.Any() ? items.Max(item => item.Id) + 1 : 1 ;
-            value.User = Thread.CurrentPrincipal.Identity.Name;
-            items.Add(value);
-            repo.Save(items);
             return value;
         }
 
