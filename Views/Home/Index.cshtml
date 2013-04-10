@@ -1,15 +1,22 @@
 ﻿<div >
     
    <div id="addpostit">
+       Add new postit:
        <label>Subject</label><input id="subject" type="text" /> <br />
-       <label>Content</label><input id="content" type="text" /><br />
+       <label>Content</label><textarea id="content" >
+           </textarea><br />
        <button id="addpostitbutton">Create</button>
    </div>
    
 </div>
+
+<div id="dragarea">
+
+</div>
     
 <script type="text/template" id="postitTemplate">
     <div class='postit' id="postit{4}" >
+        <div id="delete" />
         Subject: {0} <br />
         {3} <br />
         <div class="delete" data-key="{4}"></div>
@@ -80,7 +87,7 @@
 
         var addPostItElement = function (template, val) {
             var element = $(template.format(val.Subject, val.User, val.CreatedOn, val.Content, val.Id));
-            $("body").append(element);
+            $("#dragarea").append(element);
             element.offset({ top: val.DisplayData.Y, left: val.DisplayData.X, });
             if (val.DisplayData.Height !== undefined && val.DisplayData.Width !== undefined)
                 element.height(val.DisplayData.Height).width(val.DisplayData.Width);
@@ -107,6 +114,7 @@
             });
 
             element.draggable({
+                containment: 'parent',
                 stop: function (event, ui) {
 
                     var data = jQuery.data(ui.helper[0], 'data');
@@ -115,9 +123,10 @@
                     data.DisplayData = { 'X': offset.left, 'Y': offset.top };
                     requestSave(data.Id, data, function () { }, function () {
                         alert("Something went wrong on dragging");
-                    });
+                    })},
                 }
-            }).resizable({
+            ).resizable({
+                containment: 'parent',
                 stop: function (event, ui) {
 
                     var data = jQuery.data(ui.helper[0], 'data');

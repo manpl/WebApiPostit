@@ -4,6 +4,16 @@
     padding: 0;
 }
 
+body {
+
+}
+
+#dragarea {
+    width: 1600px;
+    height: 1050px;
+    background-color: darkgrey;
+    padding: 10px 10px 10px 10px;
+}
 
 a {
     color: #333;
