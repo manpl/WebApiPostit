@@ -101,9 +101,11 @@
 
             deleteElement.click(function (event) {
                 event.preventDefault();
+
                 requestDelete(val.Id,
                     function (data) {
                         element.fadeOut('quick', function () {
+                            debugger;
                             element.remove();
                         });
 

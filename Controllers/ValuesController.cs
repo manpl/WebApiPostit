@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -10,35 +11,73 @@ using System.Web.Http;
 
 namespace WebApiPostIt.Controllers
 {
-    public class Repository
+    public class PostItDbContext : DbContext
     {
+        public DbSet<PostIt> Postits { get; set; }
+    }
+
+    public class DbRepository : IRepository
+    {
+        private PostItDbContext dbContext;
+
+        public DbRepository(PostItDbContext dbContext)
+        {
+            this.dbContext = dbContext;
+        }
 
         public List<PostIt> GetAll()
         {
-            var content = File.ReadAllText(@"c:\temp\test.data");
-                
-            return JsonConvert.DeserializeObject<List<PostIt>>(content);
+            var items = dbContext.Postits.ToList();
+
+            return items;
+        }
+
+        public void Remove(int i)
+        {
+            var postIt = this.Get(i);
+            this.dbContext.Postits.Remove(postIt);
+        }
+
+        public void Add(PostIt postit)
+        {
+            this.dbContext.Postits.Add(postit);
         }
 
         public void Save(List<PostIt> items)
         {
-             File.WriteAllText(@"c:\temp\test.data", JsonConvert.SerializeObject(items));
+            throw new NotImplementedException();
+        }
+
+        public void Save()
+        {
+            this.dbContext.SaveChanges();
+        }
+
+        public PostIt Get(int id)
+        {
+            return this.dbContext.Postits.SingleOrDefault(item => item.Id == id);
         }
     }
 
     public class PostItController : ApiController
     {
-        Repository repo = new Repository();
+        IRepository repository;
+
+        public PostItController(IRepository repo)
+        {
+            this.repository = repo;
+        }
+
         // GET api/values
         public IEnumerable<PostIt> Get()
         {
-            return repo.GetAll();
+            return repository.GetAll();
         }
 
         // GET api/values/5
         public PostIt Get(int id)
         {
-            return repo.GetAll().Single(p => p.Id == id);
+            return repository.GetAll().Single(p => p.Id == id);
         }
 
 
@@ -46,11 +85,11 @@ namespace WebApiPostIt.Controllers
         // POST api/values
         public HttpResponseMessage Post([FromBody]PostIt value)
         {
-            var items = repo.GetAll();
+            var items = repository.GetAll();
             value.Id = items.Any() ? items.Max(item => item.Id) + 1 : 1;
             value.User = Thread.CurrentPrincipal.Identity.Name;
-            items.Add(value);
-            repo.Save(items);
+            repository.Add(value);
+            repository.Save();
 
             return Request.CreateResponse<PostIt>(HttpStatusCode.Created, value);
         }
@@ -59,8 +98,7 @@ namespace WebApiPostIt.Controllers
         // PUT api/values/5
         public PostIt Put([FromBody]PostIt value)
         {
-            var allItems = repo.GetAll();
-            var postit = allItems.SingleOrDefault(item => item.Id == value.Id);
+            var postit = repository.Get(value.Id);
 
             if(postit == null)
                 throw new HttpResponseException(HttpStatusCode.NotFound);
@@ -68,7 +106,8 @@ namespace WebApiPostIt.Controllers
             postit.Subject = value.Subject;
             postit.DisplayData = value.DisplayData;
             postit.Content = value.Content;
-            repo.Save(allItems);
+
+            repository.Save();
 
             return value;
         }
@@ -76,11 +115,8 @@ namespace WebApiPostIt.Controllers
         // DELETE api/values/5
         public void Delete(int id)
         {
-            var allItems = repo.GetAll();
-
-            allItems.RemoveAll(item => item.Id == id);
-            
-            repo.Save(allItems);
+            repository.Remove(id);
+            repository.Save();
         }
     }
 }

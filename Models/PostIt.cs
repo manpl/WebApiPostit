@@ -17,6 +17,12 @@ namespace WebApiPostIt.Controllers
         public string Content { get; set; }
         public string Subject { get; set; }
         public int Id { get; set; }
-        public object DisplayData { get; set; }
+        public DisplayData DisplayData { get; set; }
+    }
+
+    public class DisplayData
+    {
+        public int X { get; set; }
+        public int Y { get; set; }
     }
 }
